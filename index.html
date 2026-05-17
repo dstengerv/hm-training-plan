@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Half Marathon Training Plan — July 18, 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0f0a;
+  --surface: #13160f;
+  --surface2: #1a1e15;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8ead4;
+  --text2: #8a8f78;
+  --text3: #545849;
+  --green: #a8cc5a;
+  --green-dim: #6a8a2a;
+  --green-bg: rgba(168,204,90,0.08);
+  --blue: #5ab4cc;
+  --blue-dim: #2a6a8a;
+  --blue-bg: rgba(90,180,204,0.08);
+  --amber: #ccaa5a;
+  --amber-bg: rgba(204,170,90,0.08);
+  --red: #cc5a5a;
+  --red-bg: rgba(204,90,90,0.08);
+  --mono: 'DM Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── LAYOUT ── */
+.shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 56px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.logo {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.logo span { color: var(--text3); }
+.race-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--red-bg);
+  border: 1px solid rgba(204,90,90,0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+}
+.race-chip::before { content: '●'; font-size: 7px; animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.topbar-right {
+  display: flex; align-items: center; gap: 20px;
+}
+.countdown {
+  font-family: var(--mono); font-size: 12px; color: var(--text2);
+}
+.countdown strong { color: var(--text); font-size: 15px; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  overflow-y: auto;
+}
+
+.sidebar-section { margin-bottom: 32px; }
+.sidebar-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text3);
+  text-transform: uppercase;
+  padding: 0 20px;
+  margin-bottom: 8px;
+}
+
+.week-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  position: relative;
+}
+.week-btn:hover { background: var(--surface2); }
+.week-btn.active {
+  background: var(--green-bg);
+}
+.week-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--green);
+}
+.week-btn.race-week.active { background: var(--red-bg); }
+.week-btn.race-week.active::before { background: var(--red); }
+.week-btn.taper-week.active { background: var(--amber-bg); }
+.week-btn.taper-week.active::before { background: var(--amber); }
+
+.wbtn-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  min-width: 22px;
+}
+.week-btn.active .wbtn-num { color: var(--green); }
+.week-btn.race-week.active .wbtn-num { color: var(--red); }
+.week-btn.taper-week.active .wbtn-num { color: var(--amber); }
+
+.wbtn-info { flex: 1; }
+.wbtn-title { font-size: 13px; font-weight: 500; color: var(--text2); }
+.week-btn.active .wbtn-title { color: var(--text); }
+.wbtn-dates { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+.wbtn-dots {
+  display: flex; gap: 3px; align-items: center;
+}
+.wdot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--surface2);
+}
+.wdot.done { background: var(--green); }
+.wdot.partial { background: var(--green-dim); }
+
+.current-marker {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--red); letter-spacing: 0.06em;
+  background: var(--red-bg);
+  border: 1px solid rgba(204,90,90,0.2);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+/* Legend */
+.legend { padding: 0 20px; display: flex; flex-direction: column; gap: 8px; }
+.leg { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.l-easy { background: var(--green); }
+.l-goal { background: var(--blue); }
+.l-rest { background: var(--text3); }
+.l-race { background: var(--red); }
+
+/* Progress bar */
+.prog-wrap { padding: 0 20px; }
+.prog-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.prog-header span { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.prog-track {
+  height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden;
+}
+.prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.4s ease; }
+
+/* ── MAIN ── */
+.main {
+  overflow-y: auto;
+  padding: 32px 36px;
+  background: var(--bg);
+}
+
+.week-header { margin-bottom: 28px; }
+.week-eyebrow {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+}
+.phase-tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  padding: 2px 8px; border-radius: 3px; letter-spacing: 0.06em;
+}
+.pt-build { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(90,180,204,0.15); }
+.pt-peak { background: var(--green-bg); color: var(--green); border: 1px solid rgba(168,204,90,0.15); }
+.pt-taper { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(204,170,90,0.15); }
+.pt-race { background: var(--red-bg); color: var(--red); border: 1px solid rgba(204,90,90,0.15); }
+
+.week-title {
+  font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.1; margin-bottom: 6px;
+}
+.week-subtitle { font-size: 14px; color: var(--text2); }
+
+/* Stats strip */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); line-height: 1; }
+.stat-unit { font-size: 12px; font-weight: 400; color: var(--text2); margin-left: 2px; }
+.stat-sub { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+/* Days grid */
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.day-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.day-card.run-day { border-color: var(--border2); }
+.day-card.run-day:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+
+.day-head {
+  padding: 8px 10px 6px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+.day-card.run-day .day-head { color: var(--text2); }
+.day-card.active-run .day-head { color: var(--green); }
+.day-card.active-run { border-color: rgba(168,204,90,0.3); }
+
+.day-body {
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100px;
+  gap: 4px;
+}
+
+.dist-num {
+  font-size: 26px; font-weight: 700; line-height: 1;
+}
+.dist-num.c-easy { color: var(--green); }
+.dist-num.c-goal { color: var(--blue); }
+.dist-num.c-rest { color: var(--text3); font-size: 18px; }
+.dist-num.c-race { color: var(--red); }
+.dist-unit { font-size: 12px; font-weight: 400; opacity: 0.6; }
+
+.day-type-label {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  text-transform: uppercase; margin-top: 2px;
+}
+.day-type-label.c-easy { color: var(--green-dim); }
+.day-type-label.c-goal { color: var(--blue-dim); }
+.day-type-label.c-rest { color: var(--text3); }
+.day-type-label.c-cross { color: var(--text3); }
+.day-type-label.c-race { color: var(--red); }
+
+.day-note-text { font-size: 10px; color: var(--text3); line-height: 1.3; margin-top: 3px; }
+
+.segs { display: flex; flex-direction: column; gap: 3px; width: 100%; margin-top: 2px; }
+.seg-row { display: flex; justify-content: space-between; align-items: center; }
+.seg-dist { font-family: var(--mono); font-size: 11px; font-weight: 500; }
+.seg-dist.s-easy { color: var(--green); }
+.seg-dist.s-goal { color: var(--blue); }
+.seg-pace { font-size: 9px; color: var(--text3); }
+
+.cross-icon { font-size: 20px; color: var(--text3); margin-bottom: 3px; }
+
+/* Tip box */
+.tip-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--green);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+.tip-box.taper { border-left-color: var(--amber); }
+.tip-box.race { border-left-color: var(--red); }
+.tip-label {
+  font-family: var(--mono); font-size: 10px; color: var(--text3);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px;
+}
+
+/* Checklist */
+.checklist-title {
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em;
+  color: var(--text3); text-transform: uppercase; margin-bottom: 12px;
+}
+.check-items { display: flex; flex-direction: column; gap: 8px; }
+.check-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  user-select: none;
+}
+.check-item:hover { background: var(--surface2); }
+.check-item.checked {
+  background: var(--green-bg);
+  border-color: rgba(168,204,90,0.2);
+}
+.check-box {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1.5px solid var(--border2);
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+}
+.check-item.checked .check-box {
+  background: var(--green); border-color: var(--green);
+}
+.check-tick { font-size: 11px; color: var(--bg); display: none; }
+.check-item.checked .check-tick { display: block; }
+.check-text { flex: 1; }
+.check-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.check-item.checked .check-name { color: var(--text3); text-decoration: line-through; }
+.check-meta { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+.check-badge {
+  font-family: var(--mono); font-size: 10px; padding: 2px 8px;
+  border-radius: 3px; font-weight: 500;
+}
+.cb-easy { background: var(--green-bg); color: var(--green); }
+.cb-goal { background: var(--blue-bg); color: var(--blue); }
+.cb-long { background: var(--amber-bg); color: var(--amber); }
+.cb-race { background: var(--red-bg); color: var(--red); }
+
+.time-input-wrap {
+  display: flex; align-items: center; gap: 8px; margin-top: 8px;
+}
+.time-input {
+  font-family: var(--mono); font-size: 13px;
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 6px; color: var(--text);
+  padding: 5px 10px; width: 110px; outline: none;
+  transition: border-color 0.12s;
+}
+.time-input:focus { border-color: var(--green); }
+.time-input::placeholder { color: var(--text3); }
+.time-save-btn {
+  font-family: var(--sans); font-size: 12px;
+  background: var(--green-bg); border: 1px solid rgba(168,204,90,0.2);
+  border-radius: 6px; color: var(--green);
+  padding: 5px 12px; cursor: pointer; transition: all 0.12s;
+}
+.time-save-btn:hover { background: rgba(168,204,90,0.15); }
+.pace-result {
+  font-family: var(--mono); font-size: 12px; color: var(--blue);
+}
+
+/* Nav arrows */
+.nav-arrows {
+  display: flex; gap: 8px; margin-top: 24px;
+}
+.nav-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text2);
+  transition: all 0.12s;
+}
+.nav-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">HM<span>/</span>Plan</div>
+      <div class="race-chip">Race day: July 18, 2026</div>
+    </div>
+    <div class="topbar-right">
+      <div class="countdown">
+        <strong id="days-left">--</strong> days to race
+      </div>
+      <div class="countdown" style="color:var(--text3)">
+        PR: 1:59 → Target: <span style="color:var(--green)">1:50</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Progress</div>
+      <div class="prog-wrap">
+        <div class="prog-header">
+          <span id="prog-label-side">Week 1 of 8</span>
+          <span id="prog-pct">0%</span>
+        </div>
+        <div class="prog-track">
+          <div class="prog-fill" id="prog-fill-side" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Weeks</div>
+      <div id="sidebar-weeks"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pace guide</div>
+      <div class="legend">
+        <div class="leg"><div class="leg-dot l-easy"></div> Easy — full conversation</div>
+        <div class="leg"><div class="leg-dot l-goal"></div> Goal pace — 5:13/km</div>
+        <div class="leg"><div class="leg-dot l-rest"></div> Rest / cross-train</div>
+        <div class="leg"><div class="leg-dot l-race"></div> Race day</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main-content"></main>
+
+</div>
+
+<script>
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const RUN_DAYS = [1,3,5];
+
+const REST  = { type:'rest',  label:'Rest',  note:'General stretching' };
+const CROSS = { type:'cross', label:'Cross', note:'Active recovery' };
+
+const weeks = [
+  {
+    n:1, phase:'build', label:'Base building', dates:'May 18–24',
+    tip:'All runs at easy, conversational pace. You should be able to hold a full sentence throughout. Getting out consistently matters more than pace right now.',
+    days:[
+      REST,
+      { type:'easy', dist:'3', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'7', unit:'K', label:'Long run', note:'Slow & steady' },
+      CROSS,
+    ]
+  },
+  {
+    n:2, phase:'build', label:'Building mileage', dates:'May 25–31',
+    tip:'Keep all runs easy. Saturday long run is your key session — resist the urge to push. Stretching after every run.',
+    days:[
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'5', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'9', unit:'K', label:'Long run', note:'Slow & steady' },
+      CROSS,
+    ]
+  },
+  {
+    n:3, phase:'build', label:'Introduce goal pace', dates:'Jun 1–7',
+    tip:'First structured Thursday session with a goal-pace block. This is your target 1:50 pace — about 5:13/km. Steady effort, short sentences only.',
+    days:[
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      {
+        type:'goal', label:'Structured run',
+        segments:[
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+          { label:'4km', pace:'Goal half pace', cls:'s-goal' },
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+        ]
+      },
+      REST,
+      { type:'easy', dist:'10', unit:'K', label:'Long run', note:'Easy throughout' },
+      CROSS,
+    ]
+  },
+  {
+    n:4, phase:'build', label:'Recovery week', dates:'Jun 8–14',
+    tip:'Planned down week — volume drops ~20%. Your body adapts during recovery, not the runs themselves. Do not skip or add extra miles this week.',
+    days:[
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'6', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'8', unit:'K', label:'Long run', note:'Easy, no pressure' },
+      CROSS,
+    ]
+  },
+  {
+    n:5, phase:'peak', label:'Peak build', dates:'Jun 15–21',
+    tip:'Bigger goal-pace block on Thursday. Saturday long run steps up to 12K — your stepping stone before the peak long run next week.',
+    days:[
+      REST,
+      { type:'easy', dist:'5', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      {
+        type:'goal', label:'Structured run',
+        segments:[
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+          { label:'6km', pace:'Goal half pace', cls:'s-goal' },
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+        ]
+      },
+      REST,
+      { type:'easy', dist:'12', unit:'K', label:'Long run', note:'Easy pace throughout' },
+      CROSS,
+    ]
+  },
+  {
+    n:6, phase:'peak', label:'Peak week', dates:'Jun 22–28',
+    tip:'Your biggest week. The 16K long run is your confidence builder — treat the middle 8km at a comfortable-steady effort. You are more than ready for race day after this.',
+    days:[
+      REST,
+      { type:'easy', dist:'5', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      {
+        type:'goal', label:'Structured run',
+        segments:[
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+          { label:'7km', pace:'Goal half pace', cls:'s-goal' },
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+        ]
+      },
+      REST,
+      { type:'easy', dist:'16', unit:'K', label:'Long run', note:'Biggest run of the plan' },
+      CROSS,
+    ]
+  },
+  {
+    n:7, phase:'taper', label:'Taper', dates:'Jun 29–Jul 12',
+    tip:'Volume drops sharply — this is intentional. You may feel sluggish or restless. That is the taper working. Trust your 7 weeks of training and resist the urge to do more.',
+    days:[
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      {
+        type:'goal', label:'Structured run',
+        segments:[
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+          { label:'4km', pace:'Goal half pace', cls:'s-goal' },
+          { label:'2km', pace:'Easy', cls:'s-easy' },
+        ]
+      },
+      REST,
+      { type:'easy', dist:'10', unit:'K', label:'Long run', note:'Comfortable, keep it easy' },
+      CROSS,
+    ]
+  },
+  {
+    n:8, phase:'race', label:'Race week', dates:'Jul 13–18',
+    tip:'Keep it short and easy all week. Sleep well, eat familiar foods, stay off your feet on Friday. Lay out your kit Thursday night. Race Saturday — start at 5:20/km, build through the middle, empty the tank at 18K.',
+    days:[
+      REST,
+      { type:'easy', dist:'4', unit:'K', label:'Easy run', note:'General stretching' },
+      REST,
+      { type:'easy', dist:'3', unit:'K', label:'Shakeout', note:'Easy + 4×20s strides' },
+      REST,
+      { type:'race', dist:'21.1', unit:'K', label:'Race day 🏁', note:'Target: 1:50:00' },
+      CROSS,
+    ]
+  }
+];
+
+// State
+let activeWeek = 1;
+const today = new Date();
+const raceDay = new Date('2026-07-18');
+const wkStarts = [
+  '2026-05-18','2026-05-25','2026-06-01','2026-06-08',
+  '2026-06-15','2026-06-22','2026-06-29','2026-07-13'
+].map(d => new Date(d));
+
+// detect current week
+for (let i = wkStarts.length - 1; i >= 0; i--) {
+  if (today >= wkStarts[i]) { activeWeek = i + 1; break; }
+}
+if (today < wkStarts[0]) activeWeek = 1;
+
+// Completed runs storage
+function getChecked(week, day) {
+  return localStorage.getItem(`hm-w${week}-d${day}`) === '1';
+}
+function toggleChecked(week, day) {
+  const key = `hm-w${week}-d${day}`;
+  localStorage.setItem(key, localStorage.getItem(key) === '1' ? '0' : '1');
+}
+function getTime(week, day) {
+  return localStorage.getItem(`hm-w${week}-d${day}-time`) || '';
+}
+function saveTime(week, day, val) {
+  localStorage.setItem(`hm-w${week}-d${day}-time`, val);
+}
+function getPace(timeStr, distStr) {
+  const parts = timeStr.split(':');
+  if (parts.length < 2) return '';
+  const totalMins = parseInt(parts[0]) + (parseInt(parts[1]) || 0) / 60 + (parts[2] ? (parseInt(parts[2]) || 0) / 3600 : 0);
+  const dist = parseFloat(distStr);
+  if (!dist || !totalMins) return '';
+  const paceMin = totalMins / dist;
+  const pm = Math.floor(paceMin);
+  const ps = Math.round((paceMin - pm) * 60);
+  return `${pm}:${String(ps).padStart(2,'0')}/km`;
+}
+
+// Countdown
+function updateCountdown() {
+  const diff = Math.ceil((raceDay - new Date()) / (1000*60*60*24));
+  document.getElementById('days-left').textContent = diff > 0 ? diff : 0;
+}
+updateCountdown();
+
+function getRunDays(week) {
+  return week.days
+    .map((d, i) => ({ ...d, dayIdx: i }))
+    .filter(d => d.type !== 'rest' && d.type !== 'cross');
+}
+
+function getWeekKm(week) {
+  let total = 0;
+  week.days.forEach(d => {
+    if (d.segments) {
+      d.segments.forEach(s => { total += parseFloat(s.label) || 0; });
+    } else if (d.dist && d.type !== 'rest' && d.type !== 'cross') {
+      total += parseFloat(d.dist) || 0;
+    }
+  });
+  return total;
+}
+
+function renderSidebar() {
+  const container = document.getElementById('sidebar-weeks');
+  const pct = Math.round((activeWeek / 8) * 100);
+  document.getElementById('prog-fill-side').style.width = pct + '%';
+  document.getElementById('prog-label-side').textContent = `Week ${activeWeek} of 8`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+
+  container.innerHTML = weeks.map(w => {
+    const runs = getRunDays(w);
+    const checkedCount = runs.filter(r => getChecked(w.n, r.dayIdx)).length;
+    const isCurrent = w.n === activeWeek;
+    const phaseClass = w.phase === 'race' ? 'race-week' : w.phase === 'taper' ? 'taper-week' : '';
+    const dots = runs.map((r, ri) => {
+      const done = getChecked(w.n, r.dayIdx);
+      return `<div class="wdot ${done ? 'done' : ''}"></div>`;
+    }).join('');
+
+    return `<button class="week-btn ${isCurrent ? 'active' : ''} ${phaseClass}" onclick="setWeek(${w.n})">
+      <div class="wbtn-num">${w.n === 8 ? '🏁' : String(w.n).padStart(2,'0')}</div>
+      <div class="wbtn-info">
+        <div class="wbtn-title">${w.label}</div>
+        <div class="wbtn-dates">${w.dates}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        ${isCurrent ? '<span class="current-marker">NOW</span>' : ''}
+        <div class="wbtn-dots">${dots}</div>
+      </div>
+    </button>`;
+  }).join('');
+}
+
+function dayCardHTML(d, idx) {
+  const name = DAYS[idx];
+  const isRun = d.type !== 'rest' && d.type !== 'cross';
+  const checked = isRun && getChecked(activeWeek, idx);
+
+  if (d.type === 'rest') {
+    return `<div class="day-card">
+      <div class="day-head">${name}</div>
+      <div class="day-body">
+        <div class="dist-num c-rest">—</div>
+        <div class="day-type-label c-rest">Rest</div>
+        <div class="day-note-text">Stretching</div>
+      </div>
+    </div>`;
+  }
+
+  if (d.type === 'cross') {
+    return `<div class="day-card">
+      <div class="day-head">${name}</div>
+      <div class="day-body">
+        <div class="cross-icon">🚴</div>
+        <div class="day-type-label c-cross">Cross-train</div>
+        <div class="day-note-text">Active recovery</div>
+      </div>
+    </div>`;
+  }
+
+  if (d.segments) {
+    const total = d.segments.reduce((a, s) => a + (parseFloat(s.label) || 0), 0);
+    return `<div class="day-card run-day ${checked ? 'active-run' : ''}" onclick="toggleRun(${idx})" style="cursor:pointer">
+      <div class="day-head">${name} ${checked ? '✓' : ''}</div>
+      <div class="day-body">
+        <div class="day-type-label c-goal" style="margin-bottom:6px">${d.label}</div>
+        <div class="segs">
+          ${d.segments.map(s => `<div class="seg-row">
+            <span class="seg-dist ${s.cls}">${s.label}</span>
+            <span class="seg-pace">${s.pace.replace('Goal half pace','goal pace')}</span>
+          </div>`).join('')}
+        </div>
+        <div class="day-note-text" style="margin-top:6px">${total}km total</div>
+      </div>
+    </div>`;
+  }
+
+  const colorCls = d.type === 'race' ? 'c-race' : d.type === 'goal' ? 'c-goal' : 'c-easy';
+  const labelCls = d.type === 'race' ? 'c-race' : d.type === 'goal' ? 'c-goal' : 'c-easy';
+  return `<div class="day-card run-day ${checked ? 'active-run' : ''}" onclick="toggleRun(${idx})" style="cursor:pointer">
+    <div class="day-head">${name} ${checked ? '✓' : ''}</div>
+    <div class="day-body">
+      <div class="dist-num ${colorCls}">${d.dist}<span class="dist-unit">${d.unit}</span></div>
+      <div class="day-type-label ${labelCls}">${d.label}</div>
+      ${d.note ? `<div class="day-note-text">${d.note}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderMain() {
+  const w = weeks[activeWeek - 1];
+  const km = getWeekKm(w);
+  const runs = getRunDays(w);
+  const checkedCount = runs.filter(r => getChecked(w.n, r.dayIdx)).length;
+  const phaseMap = { build:'Base build', peak:'Peak week', taper:'Taper', race:'Race week' };
+  const phaseTagClass = { build:'pt-build', peak:'pt-peak', taper:'pt-taper', race:'pt-race' };
+  const tipClass = w.phase === 'taper' ? 'taper' : w.phase === 'race' ? 'race' : '';
+
+  const checkItems = runs.map(r => {
+    const checked = getChecked(w.n, r.dayIdx);
+    const distLabel = r.segments
+      ? r.segments.reduce((a,s) => a+(parseFloat(s.label)||0),0) + 'km'
+      : `${r.dist}${r.unit}`;
+    const distNum = r.segments
+      ? String(r.segments.reduce((a,s) => a+(parseFloat(s.label)||0),0))
+      : r.dist;
+    const badgeCls = r.type === 'race' ? 'cb-race' : r.type === 'goal' ? 'cb-goal' : r.dayIdx === 5 ? 'cb-long' : 'cb-easy';
+    const badgeLabel = r.type === 'race' ? 'Race' : r.type === 'goal' ? 'Goal pace' : r.dayIdx === 5 ? 'Long' : 'Easy';
+    const savedTime = getTime(w.n, r.dayIdx);
+    const pace = savedTime ? getPace(savedTime, distNum) : '';
+    return `<div class="check-item ${checked ? 'checked' : ''}">
+      <div class="check-box" onclick="toggleRun(${r.dayIdx})" style="cursor:pointer;flex-shrink:0"><span class="check-tick">✓</span></div>
+      <div class="check-text">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="check-name" onclick="toggleRun(${r.dayIdx})" style="cursor:pointer">${DAYS[r.dayIdx]} — ${r.label}</div>
+          <span class="check-badge ${badgeCls}">${badgeLabel}</span>
+        </div>
+        <div class="check-meta">${distLabel}</div>
+        <div class="time-input-wrap">
+          <input class="time-input" type="text" placeholder="h:mm:ss" value="${savedTime}"
+            id="time-${r.dayIdx}"
+            onclick="event.stopPropagation()"
+            oninput="previewPace(${w.n},${r.dayIdx},'${distNum}')"
+            onkeydown="if(event.key==='Enter') saveRunTime(${w.n},${r.dayIdx},'${distNum}')">
+          <button class="time-save-btn" onclick="saveRunTime(${w.n},${r.dayIdx},'${distNum}')">Save</button>
+          <span class="pace-result" id="pace-${r.dayIdx}">${pace}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const weekStart = wkStarts[activeWeek - 1];
+  const daysLeft = Math.ceil((raceDay - weekStart) / (1000*60*60*24));
+  const daysDisplay = daysLeft > 0 ? daysLeft : '🏁';
+
+  document.getElementById('main-content').innerHTML = `
+    <div class="week-header">
+      <div class="week-eyebrow">
+        Week ${w.n} of 8
+        <span class="phase-tag ${phaseTagClass[w.phase]}">${phaseMap[w.phase]}</span>
+      </div>
+      <div class="week-title">${w.label}</div>
+      <div class="week-subtitle">${w.dates} · ${checkedCount} of ${runs.length} runs completed</div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat">
+        <div class="stat-label">Total volume</div>
+        <div class="stat-value">${km}<span class="stat-unit">km</span></div>
+        <div class="stat-sub">this week</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Run days</div>
+        <div class="stat-value">Tue <span style="color:var(--text3);font-size:14px">·</span> Thu <span style="color:var(--text3);font-size:14px">·</span> Sat</div>
+        <div class="stat-sub">${checkedCount}/${runs.length} done</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Goal pace</div>
+        <div class="stat-value">5:13<span class="stat-unit">/km</span></div>
+        <div class="stat-sub">8:23 min/mi</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Days to race</div>
+        <div class="stat-value">${daysDisplay}</div>
+        <div class="stat-sub">July 18, 2026</div>
+      </div>
+    </div>
+
+    <div class="days-grid">
+      ${w.days.map((d, i) => dayCardHTML(d, i)).join('')}
+    </div>
+
+    <div class="tip-box ${tipClass}" style="margin-bottom:24px">
+      <div class="tip-label">Coach's note</div>
+      ${w.tip}
+    </div>
+
+    <div class="checklist-title">Run log — mark as complete</div>
+    <div class="check-items">${checkItems}</div>
+
+    <div class="nav-arrows">
+      <button class="nav-btn" onclick="setWeek(${activeWeek-1})" ${activeWeek===1?'disabled':''}>← Previous week</button>
+      <button class="nav-btn" onclick="setWeek(${activeWeek+1})" ${activeWeek===8?'disabled':''}>Next week →</button>
+    </div>
+  `;
+
+}
+
+function toggleRun(dayIdx) {
+  toggleChecked(activeWeek, dayIdx);
+  renderSidebar();
+  renderMain();
+}
+
+function saveRunTime(week, day, dist) {
+  const input = document.getElementById(`time-${day}`);
+  if (!input) return;
+  const val = input.value.trim();
+  saveTime(week, day, val);
+  const pace = getPace(val, dist);
+  const paceEl = document.getElementById(`pace-${day}`);
+  if (paceEl) paceEl.textContent = pace;
+  // auto-mark as done if time entered
+  if (val && !getChecked(week, day)) {
+    toggleChecked(week, day);
+    renderSidebar();
+    renderMain();
+  }
+}
+
+function previewPace(week, day, dist) {
+  const input = document.getElementById(`time-${day}`);
+  if (!input) return;
+  const pace = getPace(input.value.trim(), dist);
+  const paceEl = document.getElementById(`pace-${day}`);
+  if (paceEl) paceEl.textContent = pace;
+}
+
+function setWeek(n) {
+  if (n < 1 || n > 8) return;
+  activeWeek = n;
+  renderSidebar();
+  renderMain();
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+renderSidebar();
+renderMain();
+</script>
+</body>
+</html>
